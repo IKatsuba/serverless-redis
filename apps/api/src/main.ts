@@ -29,6 +29,8 @@ app.get('/', () =>
   }),
 );
 
+app.get('/ping', (c) => c.text('Pong'));
+
 app.post('/', handler(handleCommand));
 app.post('/pipeline', handler(handleCommandArray));
 app.post('/multi-exec', handler(handleCommandTransactionArray));
