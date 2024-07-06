@@ -44,5 +44,20 @@
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
     }
+  },
+  "release": {
+    "projects": ["apps/api"],
+    "version": {
+      "conventionalCommits": true
+    },
+    "git": {
+      "commitMessage": "chore(serverless-redis): publish {version}"
+    },
+    "changelog": {
+      "workspaceChangelog": {
+        "file": false,
+        "createRelease": "github"
+      }
+    }
   }
 }
