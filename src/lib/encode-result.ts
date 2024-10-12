@@ -1,10 +1,11 @@
-import { isObject } from './utils/is-object';
+import { isObject } from './utils/is-object.ts';
+import { encodeBase64 } from 'jsr:@std/encoding/base64';
 
 export function encodeResultValue(value: unknown): unknown {
   if (typeof value === 'number' || value === null) {
     return value;
   } else if (typeof value === 'string') {
-    return Buffer.from(value).toString('base64');
+    return encodeBase64(value);
   } else if (Array.isArray(value)) {
     return encodeResultValueList(value);
   } else {

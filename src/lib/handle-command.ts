@@ -1,5 +1,5 @@
-import { redisClient } from './redis-client';
-import { isObject } from './utils/is-object';
+import { redisClient } from './redis-client.ts';
+import { isObject } from './utils/is-object.ts';
 
 interface ValidationResponse {
   status: string;
@@ -7,7 +7,9 @@ interface ValidationResponse {
   data?: any;
 }
 
-export async function validateRedisBody(body: any): Promise<ValidationResponse> {
+export async function validateRedisBody(
+  body: any,
+): Promise<ValidationResponse> {
   if (Array.isArray(body)) {
     return { status: 'ok', data: body };
   } else {
@@ -19,13 +21,16 @@ export async function validateRedisBody(body: any): Promise<ValidationResponse> 
   }
 }
 
-export async function validatePipelineRedisBody(body: any): Promise<ValidationResponse> {
+export async function validatePipelineRedisBody(
+  body: any,
+): Promise<ValidationResponse> {
   if (Array.isArray(body)) {
     return { status: 'ok', data: body };
   } else {
     return {
       status: 'error',
-      message: 'Invalid command array. Expected an array of string arrays at root.',
+      message:
+        'Invalid command array. Expected an array of string arrays at root.',
     };
   }
 }
@@ -69,7 +74,10 @@ export async function dispatchCommand(commandArray: any[]) {
   });
 }
 
-export async function dispatchCommandArray(commandArray: any[], responses: any[] = []) {
+export async function dispatchCommandArray(
+  commandArray: any[],
+  responses: any[] = [],
+) {
   for (const current of commandArray) {
     const result = await dispatchCommand(current);
     if (result.status !== 'ok') {
@@ -80,7 +88,10 @@ export async function dispatchCommandArray(commandArray: any[], responses: any[]
   return { status: 'ok', result: responses };
 }
 
-export async function dispatchCommandTransactionArray(commandArray: any[], responses: any[] = []) {
+export async function dispatchCommandTransactionArray(
+  commandArray: any[],
+  responses: any[] = [],
+) {
   for (const current of commandArray) {
     const result = await dispatchCommand(current);
     if (result.status !== 'ok') {
