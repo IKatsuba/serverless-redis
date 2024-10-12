@@ -1,0 +1,11 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-env --allow-read --allow-net --watch src/main.ts"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1"
+  },
+  "fmt": {
+    "singleQuote": true
+  }
+}

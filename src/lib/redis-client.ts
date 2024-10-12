@@ -1,10 +1,10 @@
-import Redis from 'ioredis';
+import { Redis } from 'npm:ioredis';
 
 export class RedisClient {
   private redisClient: Redis | null = null;
 
   constructor() {
-    const redisUrl = process.env.REDIS_URL;
+    const redisUrl = Deno.env.get('REDIS_URL') || 'redis://localhost:6379';
     const enableSSL = redisUrl.startsWith('rediss://');
 
     const redisClient = (this.redisClient = new Redis(redisUrl, {
@@ -33,7 +33,7 @@ export class RedisClient {
       const result = await this.redisClient.call(command, args);
       return { status: 'ok', result };
     } catch (error) {
-      return { status: 'error', error: error.message };
+      return { status: 'error', error: (error as any).message };
     }
   }
 

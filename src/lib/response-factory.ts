@@ -1,4 +1,4 @@
-import { isResultArray } from './utils/is-result-array';
+import { isResultArray } from './utils/is-result-array.ts';
 
 export function responseFactory({
   status,
