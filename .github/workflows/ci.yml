@@ -20,5 +20,5 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - run: deno frm --check
+      - run: deno fmt --check
       - run: deno test
