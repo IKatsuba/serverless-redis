@@ -17,11 +17,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v3
+      - uses: denoland/setup-deno@v2
         with:
-          node-version: 20
-          cache: 'npm'
-      - run: npm ci
-      - uses: nrwl/nx-set-shas@v4
-      - run: npx nx format:check
-      - run: npx nx affected -t lint test build
+          deno-version: v2.x
+      - run: deno frm --check
+      - run: deno test
