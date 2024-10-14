@@ -36,7 +36,7 @@ app.post('/multi-exec', handler(handleCommandTransactionArray));
 const server = Deno.serve(
   {
     port: Number(Deno.env.get('PORT')) || 3000,
-    hostname: Deno.env.get('HOST') || "0.0.0.0",
+    hostname: Deno.env.get('HOST') || '0.0.0.0',
   },
   app.fetch,
 );
