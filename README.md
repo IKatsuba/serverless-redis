@@ -10,12 +10,10 @@ provides Redis.
 
 - **Hono**: A lightweight framework for building high-performance HTTP servers
   in TypeScript. In this template, Hono is used to handle HTTP requests.
-- **Nx**: A project management tool that helps organize code and dependencies.
-  It is used to structure the application and run tasks such as build, testing,
-  and deployment.
+- **Deno**: A secure runtime for JavaScript and TypeScript.
 
 ### Why use this template:
 
 - Simple setup and high performance thanks to Hono.
-- Nx helps manage the project and dependencies, making development more
-  convenient.
+- Easy to deploy on Railway.
+- Compatible with Upstash, a cloud service that provides Redis.
