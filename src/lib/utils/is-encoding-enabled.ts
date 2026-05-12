@@ -1,4 +1,4 @@
-import type { HonoRequest } from 'npm:hono';
+import type { HonoRequest } from 'hono';
 
 export function isEncodingEnabled(req: HonoRequest) {
   const encodingHeader = req.header('upstash-encoding');

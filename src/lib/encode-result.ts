@@ -1,5 +1,5 @@
 import { isObject } from './utils/is-object.ts';
-import { encodeBase64 } from 'jsr:@std/encoding/base64';
+import { encodeBase64 } from '@std/encoding/base64';
 
 export function encodeResultValue(value: unknown): unknown {
   if (typeof value === 'number' || value === null) {

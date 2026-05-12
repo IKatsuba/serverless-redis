@@ -1,4 +1,4 @@
-import { Redis } from 'npm:ioredis';
+import { Redis } from 'ioredis';
 
 export class RedisClient {
   private redisClient: Redis | null = null;
