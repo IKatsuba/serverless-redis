@@ -1,35 +1,15 @@
 import { assertEquals } from '@std/assert';
 
-import { startTestServer } from '../test-utils.ts';
-
-async function call(
-  url: string,
-  token: string,
-  command: (string | number)[],
-): Promise<unknown> {
-  const res = await fetch(`${url}/`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify(command),
-  });
-  const body = await res.json();
-  if (res.status !== 200) {
-    throw new Error(`HTTP ${res.status}: ${body.error}`);
-  }
-  return body.result;
-}
+import { rawCall, startTestServer } from '../test-utils.ts';
 
 Deno.test({
   name: 'scripting: EVAL returns scalar result',
   sanitizeOps: false,
   sanitizeResources: false,
   fn: async () => {
-    const { url, token, close } = await startTestServer();
+    const ctx = await startTestServer();
     try {
-      const result = await call(url, token, [
+      const result = await rawCall(ctx, [
         'EVAL',
         'return KEYS[1]',
         1,
@@ -37,7 +17,7 @@ Deno.test({
       ]);
       assertEquals(result, 'mykey');
     } finally {
-      await close();
+      await ctx.close();
     }
   },
 });
@@ -47,10 +27,10 @@ Deno.test({
   sanitizeOps: false,
   sanitizeResources: false,
   fn: async () => {
-    const { url, token, close } = await startTestServer();
+    const ctx = await startTestServer();
     try {
-      await call(url, token, ['SET', 'k', 'stored-value']);
-      const result = await call(url, token, [
+      await rawCall(ctx, ['SET', 'k', 'stored-value']);
+      const result = await rawCall(ctx, [
         'EVAL',
         "return redis.call('GET', KEYS[1])",
         1,
@@ -58,7 +38,7 @@ Deno.test({
       ]);
       assertEquals(result, 'stored-value');
     } finally {
-      await close();
+      await ctx.close();
     }
   },
 });
@@ -68,16 +48,16 @@ Deno.test({
   sanitizeOps: false,
   sanitizeResources: false,
   fn: async () => {
-    const { url, token, close } = await startTestServer();
+    const ctx = await startTestServer();
     try {
-      await call(url, token, ['SET', 'k', '42']);
-      const sha = await call(url, token, [
+      await rawCall(ctx, ['SET', 'k', '42']);
+      const sha = await rawCall(ctx, [
         'SCRIPT',
         'LOAD',
         "return redis.call('GET', KEYS[1])",
       ]);
       assertEquals(typeof sha, 'string');
-      const result = await call(url, token, [
+      const result = await rawCall(ctx, [
         'EVALSHA',
         sha as string,
         1,
@@ -85,7 +65,7 @@ Deno.test({
       ]);
       assertEquals(result, '42');
     } finally {
-      await close();
+      await ctx.close();
     }
   },
 });

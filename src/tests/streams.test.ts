@@ -1,35 +1,15 @@
 import { assertEquals } from '@std/assert';
 
-import { startTestServer } from '../test-utils.ts';
-
-async function call(
-  url: string,
-  token: string,
-  command: (string | number)[],
-): Promise<unknown> {
-  const res = await fetch(`${url}/`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify(command),
-  });
-  const body = await res.json();
-  if (res.status !== 200) {
-    throw new Error(`HTTP ${res.status}: ${body.error}`);
-  }
-  return body.result;
-}
+import { rawCall, startTestServer } from '../test-utils.ts';
 
 Deno.test({
   name: 'streams: XADD returns an id and XLEN counts entries',
   sanitizeOps: false,
   sanitizeResources: false,
   fn: async () => {
-    const { url, token, close } = await startTestServer();
+    const ctx = await startTestServer();
     try {
-      const id1 = await call(url, token, [
+      const id1 = await rawCall(ctx, [
         'XADD',
         'stream',
         '*',
@@ -39,7 +19,7 @@ Deno.test({
         '21',
       ]);
       assertEquals(typeof id1, 'string');
-      const id2 = await call(url, token, [
+      const id2 = await rawCall(ctx, [
         'XADD',
         'stream',
         '*',
@@ -49,9 +29,9 @@ Deno.test({
         '22',
       ]);
       assertEquals(typeof id2, 'string');
-      assertEquals(await call(url, token, ['XLEN', 'stream']), 2);
+      assertEquals(await rawCall(ctx, ['XLEN', 'stream']), 2);
     } finally {
-      await close();
+      await ctx.close();
     }
   },
 });
@@ -61,11 +41,11 @@ Deno.test({
   sanitizeOps: false,
   sanitizeResources: false,
   fn: async () => {
-    const { url, token, close } = await startTestServer();
+    const ctx = await startTestServer();
     try {
-      await call(url, token, ['XADD', 's', '*', 'f', 'v1']);
-      await call(url, token, ['XADD', 's', '*', 'f', 'v2']);
-      const entries = (await call(url, token, [
+      await rawCall(ctx, ['XADD', 's', '*', 'f', 'v1']);
+      await rawCall(ctx, ['XADD', 's', '*', 'f', 'v2']);
+      const entries = (await rawCall(ctx, [
         'XRANGE',
         's',
         '-',
@@ -73,7 +53,7 @@ Deno.test({
       ])) as unknown[];
       assertEquals(entries.length, 2);
     } finally {
-      await close();
+      await ctx.close();
     }
   },
 });
@@ -83,10 +63,10 @@ Deno.test({
   sanitizeOps: false,
   sanitizeResources: false,
   fn: async () => {
-    const { url, token, close } = await startTestServer();
+    const ctx = await startTestServer();
     try {
-      await call(url, token, ['XADD', 's', '*', 'f', 'v1']);
-      const result = (await call(url, token, [
+      await rawCall(ctx, ['XADD', 's', '*', 'f', 'v1']);
+      const result = (await rawCall(ctx, [
         'XREAD',
         'COUNT',
         10,
@@ -97,7 +77,7 @@ Deno.test({
       assertEquals(Array.isArray(result), true);
       assertEquals(result.length >= 1, true);
     } finally {
-      await close();
+      await ctx.close();
     }
   },
 });

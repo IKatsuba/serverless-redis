@@ -59,3 +59,13 @@ testWithServer(
     assertEquals(await redis.get<string>('k'), 'new');
   },
 );
+
+testWithServer(
+  'set-options: plain SET (without keepTtl) clears existing TTL',
+  async ({ redis }) => {
+    await redis.set('k', 'v', { ex: 120 });
+    assertEquals((await redis.ttl('k')) > 0, true);
+    await redis.set('k', 'new');
+    assertEquals(await redis.ttl('k'), -1);
+  },
+);

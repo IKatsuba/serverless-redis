@@ -6,7 +6,7 @@ testWithServer(
   'errors: INCR on non-numeric value rejects',
   async ({ redis }) => {
     await redis.set('k', 'not-a-number');
-    await assertRejects(() => redis.incr('k'));
+    await assertRejects(() => redis.incr('k'), Error, 'not an integer');
   },
 );
 
@@ -14,7 +14,7 @@ testWithServer(
   'errors: LPUSH on a string key rejects (WRONGTYPE)',
   async ({ redis }) => {
     await redis.set('k', 'string-value');
-    await assertRejects(() => redis.lpush('k', 'x'));
+    await assertRejects(() => redis.lpush('k', 'x'), Error, 'WRONGTYPE');
   },
 );
 

@@ -1,35 +1,15 @@
 import { assertEquals } from '@std/assert';
 
-import { startTestServer } from '../test-utils.ts';
-
-async function call(
-  url: string,
-  token: string,
-  command: (string | number)[],
-): Promise<unknown> {
-  const res = await fetch(`${url}/`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify(command),
-  });
-  const body = await res.json();
-  if (res.status !== 200) {
-    throw new Error(`HTTP ${res.status}: ${body.error}`);
-  }
-  return body.result;
-}
+import { rawCall, startTestServer } from '../test-utils.ts';
 
 Deno.test({
   name: 'geo: GEOADD + GEOPOS round-trip',
   sanitizeOps: false,
   sanitizeResources: false,
   fn: async () => {
-    const { url, token, close } = await startTestServer();
+    const ctx = await startTestServer();
     try {
-      const added = await call(url, token, [
+      const added = await rawCall(ctx, [
         'GEOADD',
         'places',
         '13.361389',
@@ -41,7 +21,7 @@ Deno.test({
       ]);
       assertEquals(added, 2);
 
-      const pos = (await call(url, token, [
+      const pos = (await rawCall(ctx, [
         'GEOPOS',
         'places',
         'Palermo',
@@ -53,7 +33,7 @@ Deno.test({
       const palermoLon = Number(pos[0]![0]);
       assertEquals(Math.abs(palermoLon - 13.361389) < 0.01, true);
     } finally {
-      await close();
+      await ctx.close();
     }
   },
 });
@@ -63,9 +43,9 @@ Deno.test({
   sanitizeOps: false,
   sanitizeResources: false,
   fn: async () => {
-    const { url, token, close } = await startTestServer();
+    const ctx = await startTestServer();
     try {
-      await call(url, token, [
+      await rawCall(ctx, [
         'GEOADD',
         'places',
         '13.361389',
@@ -75,7 +55,7 @@ Deno.test({
         '37.502669',
         'Catania',
       ]);
-      const dist = await call(url, token, [
+      const dist = await rawCall(ctx, [
         'GEODIST',
         'places',
         'Palermo',
@@ -85,7 +65,7 @@ Deno.test({
       assertEquals(Number(dist) > 100, true);
       assertEquals(Number(dist) < 200, true);
     } finally {
-      await close();
+      await ctx.close();
     }
   },
 });
@@ -95,9 +75,9 @@ Deno.test({
   sanitizeOps: false,
   sanitizeResources: false,
   fn: async () => {
-    const { url, token, close } = await startTestServer();
+    const ctx = await startTestServer();
     try {
-      await call(url, token, [
+      await rawCall(ctx, [
         'GEOADD',
         'places',
         '13.361389',
@@ -107,7 +87,7 @@ Deno.test({
         '37.502669',
         'Catania',
       ]);
-      const found = (await call(url, token, [
+      const found = (await rawCall(ctx, [
         'GEOSEARCH',
         'places',
         'FROMLONLAT',
@@ -120,7 +100,7 @@ Deno.test({
       ])) as string[];
       assertEquals(found.sort(), ['Catania', 'Palermo']);
     } finally {
-      await close();
+      await ctx.close();
     }
   },
 });

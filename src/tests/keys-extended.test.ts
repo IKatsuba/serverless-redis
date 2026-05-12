@@ -1,26 +1,6 @@
 import { assertEquals } from '@std/assert';
 
-import { startTestServer, testWithServer } from '../test-utils.ts';
-
-async function call(
-  url: string,
-  token: string,
-  command: (string | number)[],
-): Promise<unknown> {
-  const res = await fetch(`${url}/`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify(command),
-  });
-  const body = await res.json();
-  if (res.status !== 200) {
-    throw new Error(`HTTP ${res.status}: ${body.error}`);
-  }
-  return body.result;
-}
+import { rawCall, startTestServer, testWithServer } from '../test-utils.ts';
 
 testWithServer(
   'keys-extended: SCAN with MATCH + COUNT filters',
@@ -68,20 +48,20 @@ Deno.test({
   sanitizeOps: false,
   sanitizeResources: false,
   fn: async () => {
-    const { url, token, close } = await startTestServer();
+    const ctx = await startTestServer();
     try {
-      await call(url, token, ['SET', 'k', 'v']);
+      await rawCall(ctx, ['SET', 'k', 'v']);
 
-      assertEquals(await call(url, token, ['EXPIRE', 'k', 60, 'NX']), 1);
-      assertEquals(await call(url, token, ['EXPIRE', 'k', 30, 'NX']), 0);
+      assertEquals(await rawCall(ctx, ['EXPIRE', 'k', 60, 'NX']), 1);
+      assertEquals(await rawCall(ctx, ['EXPIRE', 'k', 30, 'NX']), 0);
 
-      assertEquals(await call(url, token, ['EXPIRE', 'k', 90, 'XX']), 1);
-      assertEquals(await call(url, token, ['EXPIRE', 'k', 120, 'GT']), 1);
-      assertEquals(await call(url, token, ['EXPIRE', 'k', 30, 'GT']), 0);
-      assertEquals(await call(url, token, ['EXPIRE', 'k', 10, 'LT']), 1);
-      assertEquals(await call(url, token, ['EXPIRE', 'k', 200, 'LT']), 0);
+      assertEquals(await rawCall(ctx, ['EXPIRE', 'k', 90, 'XX']), 1);
+      assertEquals(await rawCall(ctx, ['EXPIRE', 'k', 120, 'GT']), 1);
+      assertEquals(await rawCall(ctx, ['EXPIRE', 'k', 30, 'GT']), 0);
+      assertEquals(await rawCall(ctx, ['EXPIRE', 'k', 10, 'LT']), 1);
+      assertEquals(await rawCall(ctx, ['EXPIRE', 'k', 200, 'LT']), 0);
     } finally {
-      await close();
+      await ctx.close();
     }
   },
 });
@@ -91,18 +71,18 @@ Deno.test({
   sanitizeOps: false,
   sanitizeResources: false,
   fn: async () => {
-    const { url, token, close } = await startTestServer();
+    const ctx = await startTestServer();
     try {
-      await call(url, token, ['SET', 'src', 'value']);
-      assertEquals(await call(url, token, ['COPY', 'src', 'dst']), 1);
-      assertEquals(await call(url, token, ['GET', 'dst']), 'value');
-      assertEquals(await call(url, token, ['COPY', 'src', 'dst']), 0);
+      await rawCall(ctx, ['SET', 'src', 'value']);
+      assertEquals(await rawCall(ctx, ['COPY', 'src', 'dst']), 1);
+      assertEquals(await rawCall(ctx, ['GET', 'dst']), 'value');
+      assertEquals(await rawCall(ctx, ['COPY', 'src', 'dst']), 0);
       assertEquals(
-        await call(url, token, ['COPY', 'src', 'dst', 'REPLACE']),
+        await rawCall(ctx, ['COPY', 'src', 'dst', 'REPLACE']),
         1,
       );
     } finally {
-      await close();
+      await ctx.close();
     }
   },
 });
@@ -112,17 +92,17 @@ Deno.test({
   sanitizeOps: false,
   sanitizeResources: false,
   fn: async () => {
-    const { url, token, close } = await startTestServer();
+    const ctx = await startTestServer();
     try {
-      await call(url, token, ['SET', 's', 'short']);
-      await call(url, token, ['HSET', 'h', 'f', 'v']);
+      await rawCall(ctx, ['SET', 's', 'short']);
+      await rawCall(ctx, ['HSET', 'h', 'f', 'v']);
 
-      const stringEnc = await call(url, token, ['OBJECT', 'ENCODING', 's']);
-      const hashEnc = await call(url, token, ['OBJECT', 'ENCODING', 'h']);
+      const stringEnc = await rawCall(ctx, ['OBJECT', 'ENCODING', 's']);
+      const hashEnc = await rawCall(ctx, ['OBJECT', 'ENCODING', 'h']);
       assertEquals(typeof stringEnc, 'string');
       assertEquals(typeof hashEnc, 'string');
     } finally {
-      await close();
+      await ctx.close();
     }
   },
 });
