@@ -17,3 +17,21 @@ provides Redis.
 - Simple setup and high performance thanks to Hono.
 - Easy to deploy on Railway.
 - Compatible with Upstash, a cloud service that provides Redis.
+
+### Environment variables:
+
+- `REDIS_URL` — connection string to the Redis instance (defaults to
+  `redis://localhost:6379`).
+- `SR_TOKEN` — bearer token required by clients.
+- `PORT` / `HOST` — HTTP server bind address (default `0.0.0.0:3000`).
+- `SR_IDLE_TIMEOUT_MS` — idle timeout for the Redis connection in milliseconds.
+  Defaults to `0` (the connection is kept open for the lifetime of the process,
+  matching the previous behaviour). Any value greater than `0` will close the
+  Redis connection after that many milliseconds of inactivity and re-open it on
+  the next request.
+
+  Useful for platforms like
+  [Railway serverless](https://docs.railway.com/deployments/serverless), where
+  an active outbound TCP connection (e.g. to Redis) prevents the service from
+  being put to sleep. Note that every reconnect pays the TCP/TLS/AUTH handshake
+  cost, so pick a value that fits your traffic profile.
