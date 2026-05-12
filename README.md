@@ -35,3 +35,26 @@ provides Redis.
   an active outbound TCP connection (e.g. to Redis) prevents the service from
   being put to sleep. Note that every reconnect pays the TCP/TLS/AUTH handshake
   cost, so pick a value that fits your traffic profile.
+
+### Limitations
+
+This project aims to be compatible with the `@upstash/redis` HTTP client for the
+bulk of the command surface (strings, hashes, lists, sets, sorted sets, streams,
+scripting, bitops, geo, server commands, pipeline and base64 encoding). The
+following Upstash behaviours are intentionally out of scope:
+
+- **Pub/Sub** (`SUBSCRIBE`, `PSUBSCRIBE`, `PUBLISH`): the request/response HTTP
+  model cannot hold a long-lived subscription, so these commands will hang or
+  return unexpected results.
+- **REST-style URL routes** (e.g. `POST /set/{key}/{value}`, `GET /get/{key}`):
+  only the array-form endpoints `POST /`, `POST /pipeline` and
+  `POST /multi-exec` are implemented. Use the `@upstash/redis` client or send
+  `POST / -d '["SET","k","v"]'` directly.
+- **`MULTI/EXEC` atomicity**: the `/multi-exec` endpoint executes commands
+  sequentially through ioredis without `WATCH/MULTI/EXEC` framing. The first
+  failing command aborts the rest, and any successful commands before it stay
+  committed. Treat it as a pipeline, not a real transaction.
+- **Connection-stateful commands** (`SELECT`, `CLIENT`, `RESET`, `SUBSCRIBE`):
+  every HTTP request may run on a fresh logical connection, especially when
+  `SR_IDLE_TIMEOUT_MS > 0`, so state set by these commands is not guaranteed to
+  persist across requests.

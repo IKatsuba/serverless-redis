@@ -57,6 +57,26 @@ export function destroyBackendRedis(): void {
   redisClient.destroyRedis();
 }
 
+export async function rawCall(
+  ctx: Pick<TestServer, 'url' | 'token'>,
+  command: (string | number)[],
+  path: '/' | '/pipeline' | '/multi-exec' = '/',
+): Promise<unknown> {
+  const res = await fetch(`${ctx.url}${path}`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'authorization': `Bearer ${ctx.token}`,
+    },
+    body: JSON.stringify(command),
+  });
+  const body = await res.json();
+  if (res.status !== 200) {
+    throw new Error(`HTTP ${res.status}: ${body.error}`);
+  }
+  return body.result;
+}
+
 export function testWithServer(
   name: string,
   fn: (ctx: TestServer) => Promise<void> | void,

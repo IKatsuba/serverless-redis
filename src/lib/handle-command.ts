@@ -38,7 +38,7 @@ export async function validatePipelineRedisBody(
 export async function handleCommand(body: any) {
   const validation = await validateRedisBody(body);
   if (validation.status === 'error') {
-    return { status: 'malformed_data', message: validation.message };
+    return { status: 'malformed_data', error: validation.message };
   }
 
   const commandArray = validation.data;
@@ -48,7 +48,7 @@ export async function handleCommand(body: any) {
 export async function handleCommandArray(body: any) {
   const validation = await validatePipelineRedisBody(body);
   if (validation.status === 'error') {
-    return { status: 'malformed_data', message: validation.message };
+    return { status: 'malformed_data', error: validation.message };
   }
 
   const commandArray = validation.data;
@@ -57,6 +57,9 @@ export async function handleCommandArray(body: any) {
 
 export async function handleCommandTransactionArray(body: any) {
   const validation = await validatePipelineRedisBody(body);
+  if (validation.status === 'error') {
+    return { status: 'malformed_data', error: validation.message };
+  }
 
   const commandArray = validation.data;
   return dispatchCommandTransactionArray(commandArray);
