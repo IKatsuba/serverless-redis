@@ -20,7 +20,8 @@ provides Redis.
 
 ### Environment variables:
 
-- `REDIS_URL` — connection string to the Redis instance (defaults to `redis://localhost:6379`).
+- `REDIS_URL` — connection string to the Redis instance (defaults to
+  `redis://localhost:6379`).
 - `SR_TOKEN` — bearer token required by clients.
 - `PORT` / `HOST` — HTTP server bind address (default `0.0.0.0:3000`).
 - `SR_IDLE_TIMEOUT_MS` — idle timeout for the Redis connection in milliseconds.
@@ -29,7 +30,8 @@ provides Redis.
   Redis connection after that many milliseconds of inactivity and re-open it on
   the next request.
 
-  Useful for platforms like [Railway serverless](https://docs.railway.com/deployments/serverless),
-  where an active outbound TCP connection (e.g. to Redis) prevents the service
-  from being put to sleep. Note that every reconnect pays the TCP/TLS/AUTH
-  handshake cost, so pick a value that fits your traffic profile.
+  Useful for platforms like
+  [Railway serverless](https://docs.railway.com/deployments/serverless), where
+  an active outbound TCP connection (e.g. to Redis) prevents the service from
+  being put to sleep. Note that every reconnect pays the TCP/TLS/AUTH handshake
+  cost, so pick a value that fits your traffic profile.
