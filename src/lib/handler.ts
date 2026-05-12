@@ -1,4 +1,4 @@
-import type { Context } from 'npm:hono';
+import type { Context } from 'hono';
 
 import { encodeResponse } from './encode-result.ts';
 import { responseFactory } from './response-factory.ts';

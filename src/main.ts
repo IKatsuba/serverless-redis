@@ -1,6 +1,6 @@
-import { Hono } from 'npm:hono';
-import { bearerAuth } from 'npm:hono/bearer-auth';
-import { logger } from 'npm:hono/logger';
+import { Hono } from 'hono';
+import { bearerAuth } from 'hono/bearer-auth';
+import { logger } from 'hono/logger';
 
 import {
   handleCommand,
