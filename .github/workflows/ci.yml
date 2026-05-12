@@ -21,4 +21,25 @@ jobs:
         with:
           deno-version: v2.x
       - run: deno fmt --check
-      - run: deno test
+      - name: Start redis
+        run: docker compose up -d redis
+      - name: Wait for redis
+        run: |
+          for i in {1..30}; do
+            if docker compose exec -T redis redis-cli ping | grep -q PONG; then
+              echo "Redis is ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Redis failed to start" >&2
+          docker compose logs redis
+          exit 1
+      - name: Run tests
+        run: deno task test
+        env:
+          REDIS_URL: redis://localhost:6379
+      - if: always()
+        run: docker compose logs redis
+      - if: always()
+        run: docker compose down

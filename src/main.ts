@@ -1,37 +1,7 @@
-import { Hono } from 'hono';
-import { bearerAuth } from 'hono/bearer-auth';
-import { logger } from 'hono/logger';
-
-import {
-  handleCommand,
-  handleCommandArray,
-  handleCommandTransactionArray,
-} from './lib/handle-command.ts';
-import { handler } from './lib/handler.ts';
+import { createApp } from './app.ts';
 import { redisClient } from './lib/redis-client.ts';
-import { responseFactory } from './lib/response-factory.ts';
 
-const app = new Hono();
-
-app.use(
-  '/*',
-  bearerAuth({
-    token: Deno.env.get('SR_TOKEN') || '',
-  }),
-);
-app.use(logger());
-
-app.get('/', () =>
-  responseFactory({
-    status: 'ok',
-    result: 'Welcome to HTTP Redis!',
-  }));
-
-app.get('/ping', (c) => c.text('Pong'));
-
-app.post('/', handler(handleCommand));
-app.post('/pipeline', handler(handleCommandArray));
-app.post('/multi-exec', handler(handleCommandTransactionArray));
+const app = createApp();
 
 const server = Deno.serve(
   {
