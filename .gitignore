@@ -21,3 +21,4 @@
 Thumbs.db
 
 .env
+.claude/scheduled_tasks.lock
